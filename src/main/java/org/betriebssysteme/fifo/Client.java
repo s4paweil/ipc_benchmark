@@ -14,10 +14,10 @@ public class Client {
     public static void main(String[] args) throws IOException {
 
 
-        if (args.length < 2) {
-            System.out.println("Bitte Paketgröße und gesamte Datengröße angeben.");
-            return;
-        }
+//        if (args.length < 2) {
+//            System.out.println("Bitte Paketgröße und gesamte Datengröße angeben.");
+//            return;
+//        }
 
         int packetSize = Integer.parseInt(args[0]);
         long TOTAL_DATA_SIZE = Long.parseLong(args[1]);
@@ -42,7 +42,7 @@ public class Client {
         outputStream.flush();
         outputStream.close();
 
-        //System.out.println("All data sent. Total bytes sent: " + totalSent);
+        System.out.println("All data sent. Total bytes sent: " + totalSent);
 
 
     }

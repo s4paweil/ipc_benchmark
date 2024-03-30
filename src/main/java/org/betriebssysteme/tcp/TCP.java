@@ -1,26 +1,16 @@
-package org.betriebssysteme.fifo;
+package org.betriebssysteme.tcp;
 
 import org.betriebssysteme.IPCBase;
 import org.betriebssysteme.StreamGobbler;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
-public class Fifo extends IPCBase {
-
-    public static final String PIPE_NAME = "/tmp/test_pipe";
-
+public class TCP extends IPCBase {
     @Override
     public void runBenchmark(int[] packetSizes, int iterations, long TOTAL_DATA_SIZE) throws IOException, InterruptedException {
 
         compileServerAndClient(); // Compile Server and Client
-
-        // Setup Named Pipe
-        Path pipePath = Paths.get(PIPE_NAME);
-        Files.deleteIfExists(pipePath); // Delete the pipe if it already exists
-        Files.createFile(pipePath); // Create a new pipe
 
         for (int packetSize : packetSizes) {
             double totalLatencySeconds = 0;
@@ -33,6 +23,7 @@ public class Fifo extends IPCBase {
                 Process serverProcess = startServerProcess();
 //                StreamGobbler outputGobbler = new StreamGobbler(serverProcess.getInputStream(), "OUTPUT_SERVER");
 //                outputGobbler.start();
+
 
                 // Startzeit für die Benchmark-Iteration
                 long startTime = System.nanoTime();
@@ -78,7 +69,7 @@ public class Fifo extends IPCBase {
             double avgThroughputMBps = totalThroughputMBps / iterations;
 
             // Ausgabe der Ergebnisse für die aktuelle Paketgröße
-            System.out.println("Fifo (Named Pipes)");
+            System.out.println("TCP-Socket");
             System.out.println("Packet Size: " + packetSize + ", Iterations: " + iterations + ", Total Data sent: " + TOTAL_DATA_SIZE / (1024 * 1024) + " MB");
             System.out.println("Durchschnittliche Latenz: " + avgLatencySeconds + " Sekunden für " + TOTAL_DATA_SIZE / (1024 * 1024) + " MB");
             System.out.println("Durchschnittliche Nachrichten pro Sekunde (NPS): " + avgMessagesPerSecond);
@@ -87,25 +78,23 @@ public class Fifo extends IPCBase {
 
         }
 
-        Files.deleteIfExists(pipePath); // Delete the pipe
     }
 
-    protected Process startServerProcess() throws IOException {
-        return Runtime.getRuntime().exec("java -cp src/main/java org.betriebssysteme.fifo.Server");
+    private Process startClientProcess(int packetSize, long TOTAL_DATA_SIZE) throws IOException {
+        return Runtime.getRuntime().exec("java -cp src/main/java org.betriebssysteme.tcp.Client " + packetSize + " " + TOTAL_DATA_SIZE);
     }
 
-
-    protected Process startClientProcess(int packetSize, long TOTAL_DATA_SIZE) throws IOException {
-        return Runtime.getRuntime().exec("java -cp src/main/java org.betriebssysteme.fifo.Client " + packetSize + " " + TOTAL_DATA_SIZE);
+    private Process startServerProcess() throws IOException {
+        return Runtime.getRuntime().exec("java -cp src/main/java org.betriebssysteme.tcp.Server");
     }
 
     @Override
     protected void compileServerAndClient() throws IOException, InterruptedException {
-        Process compileServer = Runtime.getRuntime().exec("javac -cp src src/main/java/org/betriebssysteme/fifo/Server.java");
+        Process compileServer = Runtime.getRuntime().exec("javac -cp src src/main/java/org/betriebssysteme/tcp/Server.java");
         compileServer.waitFor();
         compileServer.destroy();
 
-        Process compileClient = Runtime.getRuntime().exec("javac -cp src src/main/java/org/betriebssysteme/fifo/Client.java");
+        Process compileClient = Runtime.getRuntime().exec("javac -cp src src/main/java/org/betriebssysteme/tcp/Client.java");
         compileClient.waitFor();
         compileClient.destroy();
     }

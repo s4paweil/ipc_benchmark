@@ -32,7 +32,7 @@ public class Server {
                 }
             }
 
-            //System.out.println("Server received all data. Total bytes read: " + totalBytesRead);
+            System.out.println("Server received all data. Total bytes read: " + totalBytesRead);
         }
     }
 }

@@ -19,8 +19,8 @@ public class UDS extends IPCBase {
 
                 // Start Server
                 Process serverProcess = startServerProcess();
-                StreamGobbler outputGobbler = new StreamGobbler(serverProcess.getInputStream(), "OUTPUT_SERVER");
-                outputGobbler.start();
+//                StreamGobbler outputGobbler = new StreamGobbler(serverProcess.getInputStream(), "OUTPUT_SERVER");
+//                outputGobbler.start();
 
                 Thread.sleep(250);
 
@@ -29,8 +29,8 @@ public class UDS extends IPCBase {
 
                 // Start Client
                 Process clientProcess = startClientProcess(packetSize, TOTAL_DATA_SIZE);
-                StreamGobbler clientOutput = new StreamGobbler(clientProcess.getInputStream(), "OUTPUT_CLIENT");
-                clientOutput.start();
+//                StreamGobbler clientOutput = new StreamGobbler(clientProcess.getInputStream(), "OUTPUT_CLIENT");
+//                clientOutput.start();
 
                 // Wait for Client to finish
                 clientProcess.waitFor();
@@ -74,6 +74,8 @@ public class UDS extends IPCBase {
             System.out.println("Durchschnittliche Nachrichten pro Sekunde (NPS): " + avgMessagesPerSecond);
             System.out.println("Durchschnittlicher Durchsatz: " + avgThroughputMBps + " MB/s");
             System.out.println("--------------------------------------------");
+
+            toCSV("Unix Domain Socket", packetSize, iterations, TOTAL_DATA_SIZE / (1024 * 1024), avgLatencySeconds, avgMessagesPerSecond, avgThroughputMBps);
 
         }
     }

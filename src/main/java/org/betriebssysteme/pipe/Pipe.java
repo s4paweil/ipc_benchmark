@@ -27,8 +27,8 @@ public class Pipe extends IPCBase {
 
                 // Start Server
                 Process serverProcess = startServerProcess();
-                StreamGobbler outputGobbler = new StreamGobbler(serverProcess.getInputStream(), "OUTPUT_SERVER");
-                outputGobbler.start();
+//                StreamGobbler outputGobbler = new StreamGobbler(serverProcess.getInputStream(), "OUTPUT_SERVER");
+//                outputGobbler.start();
 
                 long totalSent = writeDataToPipe(serverProcess.getOutputStream(),packetSize, TOTAL_DATA_SIZE);
                 serverProcess.waitFor();
@@ -36,7 +36,7 @@ public class Pipe extends IPCBase {
                 // Endzeit für die Benchmark-Iteration
                 long endTime = System.nanoTime();
 
-                System.out.println("OUTPUT_PIPE> Total bytes sent: " + totalSent);
+                //System.out.println("OUTPUT_PIPE> Total bytes sent: " + totalSent);
 
                 // Destroy Client and Server Process
                 serverProcess.destroy();
@@ -72,6 +72,8 @@ public class Pipe extends IPCBase {
             System.out.println("Durchschnittliche Nachrichten pro Sekunde (NPS): " + avgMessagesPerSecond);
             System.out.println("Durchschnittlicher Durchsatz: " + avgThroughputMBps + " MB/s");
             System.out.println("--------------------------------------------");
+
+            toCSV("Pipe", packetSize, iterations, TOTAL_DATA_SIZE / (1024 * 1024), avgLatencySeconds, avgMessagesPerSecond, avgThroughputMBps);
 
         }
     }

@@ -77,6 +77,8 @@ public class TCP extends IPCBase {
             System.out.println("Durchschnittlicher Durchsatz: " + avgThroughputMBps + " MB/s");
             System.out.println("--------------------------------------------");
 
+            toCSV("TCP", packetSize, iterations, TOTAL_DATA_SIZE / (1024 * 1024), avgLatencySeconds, avgMessagesPerSecond, avgThroughputMBps);
+
         }
 
     }

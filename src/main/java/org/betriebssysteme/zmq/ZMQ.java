@@ -20,8 +20,8 @@ public class ZMQ extends IPCBase {
 
                 // Start Server
                 Process serverProcess = startServerProcess();
-                StreamGobbler outputGobbler = new StreamGobbler(serverProcess.getInputStream(), "OUTPUT_SERVER");
-                outputGobbler.start();
+//                StreamGobbler outputGobbler = new StreamGobbler(serverProcess.getInputStream(), "OUTPUT_SERVER");
+//                outputGobbler.start();
 
 
                 // Startzeit für die Benchmark-Iteration
@@ -29,8 +29,8 @@ public class ZMQ extends IPCBase {
 
                 // Start Client
                 Process clientProcess = startClientProcess(packetSize, TOTAL_DATA_SIZE);
-                StreamGobbler clientOutput = new StreamGobbler(clientProcess.getInputStream(), "OUTPUT_CLIENT");
-                clientOutput.start();
+//                StreamGobbler clientOutput = new StreamGobbler(clientProcess.getInputStream(), "OUTPUT_CLIENT");
+//                clientOutput.start();
 
                 // Wait for Client to finish
                 clientProcess.waitFor();
@@ -78,22 +78,21 @@ public class ZMQ extends IPCBase {
         }
     }
 
-    @Override
-    protected void compileServerAndClient() throws IOException, InterruptedException {
-        Process compileServer = Runtime.getRuntime().exec("javac -cp src src/main/java/org/betriebssysteme/zmq/Server.java");
-        compileServer.waitFor();
-        compileServer.destroy();
-
-        Process compileClient = Runtime.getRuntime().exec("javac -cp src src/main/java/org/betriebssysteme/zmq/Client.java");
-        compileClient.waitFor();
-        compileClient.destroy();
+    private Process startServerProcess() throws IOException {
+        return Runtime.getRuntime().exec("java -cp src/main/java:libs/jeromq-0.5.2.jar org.betriebssysteme.zmq.Server");
     }
 
     private Process startClientProcess(int packetSize, long TOTAL_DATA_SIZE) throws IOException {
-        return Runtime.getRuntime().exec("java -cp src/main/java org.betriebssysteme.zmq.Client " + packetSize + " " + TOTAL_DATA_SIZE);
+        return Runtime.getRuntime().exec("java -cp src/main/java:libs/jeromq-0.5.2.jar org.betriebssysteme.zmq.Client " + packetSize + " " + TOTAL_DATA_SIZE);
     }
+    @Override
+    protected void compileServerAndClient() throws IOException, InterruptedException {
+        Process compileServer = Runtime.getRuntime().exec("javac -cp libs/jeromq-0.5.2.jar src/main/java/org/betriebssysteme/zmq/Server.java");
+        compileServer.waitFor();
+        compileServer.destroy();
 
-    private Process startServerProcess() throws IOException {
-        return Runtime.getRuntime().exec("java -cp src/main/java org.betriebssysteme.zmq.Server");
+        Process compileClient = Runtime.getRuntime().exec("javac -cp libs/jeromq-0.5.2.jar src/main/java/org/betriebssysteme/zmq/Client.java");
+        compileClient.waitFor();
+        compileClient.destroy();
     }
 }

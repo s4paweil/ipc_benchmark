@@ -21,8 +21,8 @@ public class TCP extends IPCBase {
 
                 // Start Server
                 Process serverProcess = startServerProcess();
-                StreamGobbler outputGobbler = new StreamGobbler(serverProcess.getInputStream(), "OUTPUT_SERVER");
-                outputGobbler.start();
+//                StreamGobbler outputGobbler = new StreamGobbler(serverProcess.getInputStream(), "OUTPUT_SERVER");
+//                outputGobbler.start();
 
                 Thread.sleep(250);
 
@@ -31,8 +31,8 @@ public class TCP extends IPCBase {
 
                 // Start Client
                 Process clientProcess = startClientProcess(packetSize, TOTAL_DATA_SIZE);
-                StreamGobbler clientOutput = new StreamGobbler(clientProcess.getInputStream(), "OUTPUT_CLIENT");
-                clientOutput.start();
+//                StreamGobbler clientOutput = new StreamGobbler(clientProcess.getInputStream(), "OUTPUT_CLIENT");
+//                clientOutput.start();
 
                 // Wait for Client to finish
                 clientProcess.waitFor();

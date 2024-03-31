@@ -1,12 +1,11 @@
-package org.betriebssysteme.tcp;
+package org.betriebssysteme.zmq;
 
 import org.betriebssysteme.IPCBase;
 import org.betriebssysteme.StreamGobbler;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
-public class TCP extends IPCBase {
+public class ZMQ extends IPCBase {
     @Override
     public void runBenchmark(int[] packetSizes, int iterations, long TOTAL_DATA_SIZE) throws IOException, InterruptedException {
 
@@ -24,7 +23,6 @@ public class TCP extends IPCBase {
                 StreamGobbler outputGobbler = new StreamGobbler(serverProcess.getInputStream(), "OUTPUT_SERVER");
                 outputGobbler.start();
 
-                Thread.sleep(250);
 
                 // Startzeit für die Benchmark-Iteration
                 long startTime = System.nanoTime();
@@ -70,7 +68,7 @@ public class TCP extends IPCBase {
             double avgThroughputMBps = totalThroughputMBps / iterations;
 
             // Ausgabe der Ergebnisse für die aktuelle Paketgröße
-            System.out.println("TCP-Socket");
+            System.out.println("ZeroMQ-Socket");
             System.out.println("Packet Size: " + packetSize + ", Iterations: " + iterations + ", Total Data sent: " + TOTAL_DATA_SIZE / (1024 * 1024) + " MB");
             System.out.println("Durchschnittliche Latenz: " + avgLatencySeconds + " Sekunden für " + TOTAL_DATA_SIZE / (1024 * 1024) + " MB");
             System.out.println("Durchschnittliche Nachrichten pro Sekunde (NPS): " + avgMessagesPerSecond);
@@ -78,25 +76,24 @@ public class TCP extends IPCBase {
             System.out.println("--------------------------------------------");
 
         }
-
-    }
-
-    private Process startClientProcess(int packetSize, long TOTAL_DATA_SIZE) throws IOException {
-        return Runtime.getRuntime().exec("java -cp src/main/java org.betriebssysteme.tcp.Client " + packetSize + " " + TOTAL_DATA_SIZE);
-    }
-
-    private Process startServerProcess() throws IOException {
-        return Runtime.getRuntime().exec("java -cp src/main/java org.betriebssysteme.tcp.Server");
     }
 
     @Override
     protected void compileServerAndClient() throws IOException, InterruptedException {
-        Process compileServer = Runtime.getRuntime().exec("javac -cp src src/main/java/org/betriebssysteme/tcp/Server.java");
+        Process compileServer = Runtime.getRuntime().exec("javac -cp src src/main/java/org/betriebssysteme/zmq/Server.java");
         compileServer.waitFor();
         compileServer.destroy();
 
-        Process compileClient = Runtime.getRuntime().exec("javac -cp src src/main/java/org/betriebssysteme/tcp/Client.java");
+        Process compileClient = Runtime.getRuntime().exec("javac -cp src src/main/java/org/betriebssysteme/zmq/Client.java");
         compileClient.waitFor();
         compileClient.destroy();
+    }
+
+    private Process startClientProcess(int packetSize, long TOTAL_DATA_SIZE) throws IOException {
+        return Runtime.getRuntime().exec("java -cp src/main/java org.betriebssysteme.zmq.Client " + packetSize + " " + TOTAL_DATA_SIZE);
+    }
+
+    private Process startServerProcess() throws IOException {
+        return Runtime.getRuntime().exec("java -cp src/main/java org.betriebssysteme.zmq.Server");
     }
 }

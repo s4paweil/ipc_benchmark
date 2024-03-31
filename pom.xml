@@ -14,12 +14,4 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.zeromq</groupId>
-            <artifactId>jeromq</artifactId>
-            <version>0.5.2</version> <!-- Stellen Sie sicher, dass Sie die neueste Version verwenden -->
-        </dependency>
-    </dependencies>
-
 </project>

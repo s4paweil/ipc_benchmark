@@ -1,7 +1,9 @@
 package org.betriebssysteme;
 
 import org.betriebssysteme.fifo.Fifo;
+import org.betriebssysteme.pipe.Pipe;
 import org.betriebssysteme.tcp.TCP;
+import org.betriebssysteme.uds.UDS;
 import org.betriebssysteme.zmq.ZMQ;
 
 import java.io.IOException;
@@ -12,9 +14,9 @@ public class Main {
         final int iterations = 5;
         final long TOTAL_DATA_SIZE = 2L * 1024 * 1024 * 1024; // 2 GB
 
-//        // Run Fifo (NamedPipes)
-//        IPCBase fifo = new Fifo();
-//        fifo.runBenchmark(packetSizes, iterations, TOTAL_DATA_SIZE);
+        // Run Fifo (NamedPipes)
+        IPCBase fifo = new Fifo();
+        fifo.runBenchmark(packetSizes, iterations, TOTAL_DATA_SIZE);
 
         // Run Pipes (UnnamedPipes)
         IPCBase tcp = new TCP();
@@ -23,5 +25,13 @@ public class Main {
         // Run ZMQ (DEALER/ROUTER)
         IPCBase zmq = new ZMQ();
         zmq.runBenchmark(packetSizes, iterations, TOTAL_DATA_SIZE);
+
+        // Run Unix Domain Sockets
+        IPCBase uds = new UDS();
+        uds.runBenchmark(packetSizes, iterations, TOTAL_DATA_SIZE);
+
+        // Run Pipe (anonymous - stdin)
+        IPCBase pipe = new Pipe();
+        pipe.runBenchmark(packetSizes, iterations, TOTAL_DATA_SIZE);
     }
 }

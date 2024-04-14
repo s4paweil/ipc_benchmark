@@ -1,27 +1,25 @@
-package org.betriebssysteme.fifo;
+package org.betriebssysteme.FIFO;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Client {
+public class FIFOClient {
+
+    long TOTAL_DATA_SIZE;
+    int packetSize;
 
     public static final String PIPE_NAME = "/tmp/test_pipe";
 
+    public FIFOClient(long TOTAL_DATA_SIZE, int packetSize){
+        this.TOTAL_DATA_SIZE = TOTAL_DATA_SIZE;
+        this.packetSize = packetSize;
+    }
 
-    public static void main(String[] args) throws IOException {
-
-
-//        if (args.length < 2) {
-//            System.out.println("Bitte Paketgröße und gesamte Datengröße angeben.");
-//            return;
-//        }
-
-        int packetSize = Integer.parseInt(args[0]);
-        long TOTAL_DATA_SIZE = Long.parseLong(args[1]);
-
+    public void start() throws IOException {
         Path pipePath = Paths.get(PIPE_NAME);
         FileOutputStream outputStream = new FileOutputStream(pipePath.toFile());
 
@@ -33,6 +31,14 @@ public class Client {
         // Send data packets
         while (totalSent < TOTAL_DATA_SIZE) {
             int remaining = (int) Math.min(packetSize, TOTAL_DATA_SIZE - totalSent);
+
+            // Reserviere die ersten 8 Bytes für den Zeitstempel
+            if(remaining >= Long.BYTES){
+                long sendTime = System.nanoTime();
+                byte[] timestamp = ByteBuffer.allocate(Long.BYTES).putLong(sendTime).array();
+                System.arraycopy(timestamp, 0, data, 0, Long.BYTES);
+            }
+
             outputStream.write(data, 0, remaining);
             totalSent += remaining;
         }
@@ -43,7 +49,5 @@ public class Client {
         outputStream.close();
 
         System.out.println("All data sent. Total bytes sent: " + totalSent);
-
-
     }
 }

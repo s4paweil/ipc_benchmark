@@ -1,4 +1,4 @@
-package org.betriebssysteme.uds;
+package org.betriebssysteme.UDS;
 
 import java.io.IOException;
 import java.net.StandardProtocolFamily;
@@ -7,17 +7,20 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Path;
 
-public class Client {
-    public static void main(String[] args) {
+public class UDSClient {
 
-        if (args.length < 2) {
-            System.out.println("Bitte Paketgröße und gesamte Datengröße angeben.");
-            return;
-        }
+    long TOTAL_DATA_SIZE;
+    int packetSize;
 
-        int packetSize = Integer.parseInt(args[0]);
-        long TOTAL_DATA_SIZE = Long.parseLong(args[1]);
+    public UDSClient(long TOTAL_DATA_SIZE, int packetSize){
+        this.TOTAL_DATA_SIZE = TOTAL_DATA_SIZE;
+        this.packetSize = packetSize;
+    }
 
+
+
+    public void start(){
+        System.out.println("STarted Client");
         Path socketFile = Path.of("/tmp/unixdomainsocket");
         UnixDomainSocketAddress address = UnixDomainSocketAddress.of(socketFile);
 
@@ -30,6 +33,14 @@ public class Client {
             // Send data packets
             while (totalSent < TOTAL_DATA_SIZE) {
                 int remaining = (int) Math.min(packetSize, TOTAL_DATA_SIZE - totalSent);
+
+                // Reserviere die ersten 8 Bytes für den Zeitstempel
+                if(remaining >= Long.BYTES){
+                    long sendTime = System.nanoTime();
+                    byte[] timestamp = ByteBuffer.allocate(Long.BYTES).putLong(sendTime).array();
+                    System.arraycopy(timestamp, 0, data, 0, Long.BYTES);
+                }
+
                 socketChannel.write(ByteBuffer.wrap(data));
                 totalSent += remaining;
             }

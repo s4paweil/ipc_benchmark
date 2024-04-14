@@ -1,24 +1,29 @@
-package org.betriebssysteme.zmq;
+package org.betriebssysteme.ZMQ;
 
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
-public class Client {
-    public static void main(String[] args) {
+import java.nio.ByteBuffer;
 
-        if (args.length < 2) {
-            System.out.println("Bitte Paketgröße und Anzahl der Pakete angeben.");
-            return;
-        }
+public class ZMQClient {
+
+    long TOTAL_DATA_SIZE;
+    int packetSize;
+
+
+    public ZMQClient(long TOTAL_DATA_SIZE, int packetSize) {
+        this.TOTAL_DATA_SIZE = TOTAL_DATA_SIZE;
+        this.packetSize = packetSize;
+    }
+
+    public void start() {
+        System.out.println("Client gestartet...");
 
         final String address = "tcp://localhost:12345"; // Adresse für die Verbindung
-        int packetSize = Integer.parseInt(args[0]);
-        long TOTAL_DATA_SIZE = Long.parseLong(args[1]);
 
         try (ZContext context = new ZContext()) {
-            // Erstelle einen ZeroMQ PUB Socket
             ZMQ.Socket socket = context.createSocket(SocketType.DEALER);
             socket.connect(address);
 
@@ -30,7 +35,15 @@ public class Client {
             // Simuliere das Senden von Nachrichten
             while (totalSent < TOTAL_DATA_SIZE) {
                 int remaining = (int) Math.min(packetSize, TOTAL_DATA_SIZE - totalSent);
-                //System.out.println(data.length);
+
+                // Reserviere die ersten 8 Bytes für den Zeitstempel
+                if (remaining >= Long.BYTES) {
+                    long sendTime = System.nanoTime();
+                    //System.out.println(sendTime);
+                    byte[] timestamp = ByteBuffer.allocate(Long.BYTES).putLong(sendTime).array();
+                    System.arraycopy(timestamp, 0, data, 0, Long.BYTES);
+                }
+
                 socket.send(data);
                 totalSent += remaining;
             }

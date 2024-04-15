@@ -26,6 +26,8 @@ public class ZMQServer {
             ZMQ.Socket socket = context.createSocket(SocketType.ROUTER);
             socket.bind(address);
 
+            socket.setRcvHWM(1000000);
+
             // Warte einige Millisekunden, um sicherzustellen, dass der Server bereit ist, Nachrichten zu empfangen
             System.out.println("Start Reading...");
 

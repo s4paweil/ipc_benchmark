@@ -27,6 +27,8 @@ public class ZMQClient {
             ZMQ.Socket socket = context.createSocket(SocketType.DEALER);
             socket.connect(address);
 
+            socket.setRcvHWM(1000000);
+
             System.out.println("Client gestartet. Sende Nachrichten...");
 
             byte[] data = new byte[packetSize];
